@@ -33,10 +33,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Actividad de registro -->
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
+
     </application>
 
 </manifest>
