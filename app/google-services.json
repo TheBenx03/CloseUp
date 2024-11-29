@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "556723763501",
+    "project_id": "trabajo-d0d58",
+    "storage_bucket": "trabajo-d0d58.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:556723763501:android:5e5463c1dbe6e3588e7ba4",
+        "android_client_info": {
+          "package_name": "com.example.closeup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfPx-EgsL1k0KuMKOj2NcrWQaEqP4iW3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,10 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".RegisterActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,17 +15,14 @@
         android:background="#F5F5F5"
         android:gravity="center">
 
-        <!-- Logo or Title -->
-        <TextView
-            android:id="@+id/tvAppName"
-            android:layout_width="wrap_content"
+        <!-- Name Input -->
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="GeoAmigos"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:textColor="#3F51B5"
-            android:layout_marginBottom="32dp" />
+            android:hint="Nombre completo"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
 
         <!-- Email Input -->
         <EditText
@@ -48,27 +44,15 @@
             android:padding="12dp"
             android:layout_marginBottom="24dp" />
 
-        <!-- Login Button -->
+        <!-- Register Button -->
         <Button
-            android:id="@+id/btnLogin"
+            android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Iniciar sesión"
+            android:text="Registrar"
             android:backgroundTint="#3F51B5"
             android:textColor="#FFFFFF"
             android:padding="12dp" />
-
-        <!-- Register Option -->
-        <TextView
-            android:id="@+id/tvRegister"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="¿No tienes una cuenta? Regístrate"
-            android:textSize="14sp"
-            android:layout_marginTop="16dp"
-            android:textColor="#3F51B5"
-            android:gravity="center" />
-
 
     </LinearLayout>
 
