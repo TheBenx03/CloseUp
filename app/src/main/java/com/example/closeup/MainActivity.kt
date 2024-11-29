@@ -50,6 +50,8 @@ class MainActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
                     // Aquí puedes redirigir a otra actividad, como un dashboard
+                    val i = Intent(this, MenuActivity::class.java)
+                    startActivity(i)
                 } else {
                     Toast.makeText(this, "Error de autenticación: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
