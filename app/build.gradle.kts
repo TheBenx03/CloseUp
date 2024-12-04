@@ -16,6 +16,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "MAPTILER_API_KEY", "\"ZlGvpyFOixgZocSb26jU\"")
     }
 
     buildTypes {
@@ -55,9 +56,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     // Map Dependencies
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
-    implementation ("androidx.core:core-ktx:1.10.1")
-    implementation ("androidx.appcompat:appcompat:1.6.1")
-    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation ("org.maplibre.gl:android-sdk:10.0.2")
 }

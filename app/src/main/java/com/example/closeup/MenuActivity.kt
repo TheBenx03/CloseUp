@@ -24,29 +24,34 @@ class MenuActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val styleUrl = "https://api.maptiler.com/maps/streets-v2/style.json?key=ZlGvpyFOixgZocSb26jU"
+        val key = BuildConfig.MAPTILER_API_KEY
+        val mapId = "streets-v2"
+
+        val styleUrl = "https://api.maptiler.com/maps/$mapId/style.json?key=$key"
         Mapbox.getInstance(this)
 
-        //FIXME: Inicia la actividad con ciertos requisitos, buscar requisitos y documentacion del mapa, probar con un target
-        val inflater = LayoutInflater.from(this)
-        val rootView = inflater.inflate(R.layout.activity_menu, null)
+//        //FIXME: Inicia la actividad con ciertos requisitos, buscar requisitos y documentacion del mapa, probar con un target
         setContentView(R.layout.activity_menu)
 
         //Puntero al boton
         //btnAbrirCamara = findViewById(R.id.btn_open_camera)
 
         //Puntero al contenedor
-        mapView = rootView.findViewById(R.id.mapView)
+        mapView = findViewById(R.id.mapView)
 
         // FIXME: Crashea al no poder guardar la imagen
         //TODO: Almacenar imagen con su ubicacion en firebase storage
 
         // imgCapturada = findViewById(R.id.imgCapturada)
-
+        mapView.onCreate(savedInstanceState)
         mapView.getMapAsync { map ->
-            val point = LatLng(-33.4489,-70.6693)
-            map.setStyle(styleUrl)
-            map.cameraPosition = CameraPosition.Builder().target(point).zoom(14.0).build()
+            map.setStyle(styleUrl){
+                map.uiSettings.setAttributionMargins(15, 0, 0, 15)
+                map.cameraPosition = CameraPosition.Builder()
+                    .target(LatLng(-33.4489,-70.6693))
+                    .zoom(10.0)
+                    .build()
+            }
         }
 
 //        mapView.getMapboxMap().loadStyleUri(
