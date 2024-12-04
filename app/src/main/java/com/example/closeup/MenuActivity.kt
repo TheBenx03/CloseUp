@@ -1,39 +1,112 @@
 package com.example.closeup
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.geometry.LatLng
 
 class MenuActivity : AppCompatActivity() {
+
     private lateinit var btnAbrirCamara: Button
     private lateinit var imgCapturada: ImageView
     private lateinit var takePictureLauncher: ActivityResultLauncher<Intent>
+    private lateinit var mapView: MapView
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val styleUrl = "https://api.maptiler.com/maps/streets-v2/style.json?key=ZlGvpyFOixgZocSb26jU"
+        Mapbox.getInstance(this)
+
+        //FIXME: Inicia la actividad con ciertos requisitos, buscar requisitos y documentacion del mapa, probar con un target
+        val inflater = LayoutInflater.from(this)
+        val rootView = inflater.inflate(R.layout.activity_menu, null)
         setContentView(R.layout.activity_menu)
 
-        btnAbrirCamara = findViewById(R.id.btn_open_camera)
+        //Puntero al boton
+        //btnAbrirCamara = findViewById(R.id.btn_open_camera)
+
+        //Puntero al contenedor
+        mapView = rootView.findViewById(R.id.mapView)
+
+        // FIXME: Crashea al no poder guardar la imagen
+        //TODO: Almacenar imagen con su ubicacion en firebase storage
+
         // imgCapturada = findViewById(R.id.imgCapturada)
 
-        takePictureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
-            if(result.resultCode == RESULT_OK){
-                val imageBitmap = result.data?.extras?.get("data")as Bitmap
-                imgCapturada.setImageBitmap(imageBitmap)
-            }
+        mapView.getMapAsync { map ->
+            val point = LatLng(-33.4489,-70.6693)
+            map.setStyle(styleUrl)
+            map.cameraPosition = CameraPosition.Builder().target(point).zoom(14.0).build()
         }
 
-        btnAbrirCamara.setOnClickListener {
-            abrirCamara()
-        }
+//        mapView.getMapboxMap().loadStyleUri(
+//            Style.MAPTILER_STREETS
+//        ) {
+//            getCurrentLocation { latitude, longitude ->
+//                val point = Point.fromLngLat(longitude, latitude)
+//                mapView.getMapboxMap().setCamera(
+//                    CameraOptions.Builder().center(point).zoom(14.0).build()
+//                )
+//                addMarker(point)
+//            }
+//        }
+
+
+//        takePictureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
+//            if(result.resultCode == RESULT_OK){
+//                val imageBitmap = result.data?.extras?.get("data")as Bitmap
+//                imgCapturada.setImageBitmap(imageBitmap)
+//            }
+//        }
+
+//        btnAbrirCamara.setOnClickListener {
+//            abrirCamara()
+//        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapView.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapView.onStop()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView.onLowMemory()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mapView.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
     }
 
     private fun abrirCamara(){

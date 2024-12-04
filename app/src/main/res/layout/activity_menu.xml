@@ -1,39 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MenuActivity">
 
-    <!-- Botón para compartir ubicación -->
-    <Button
-        android:id="@+id/btn_share_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_margin="16dp"
-        android:layout_alignParentStart="true"
-        android:text="Compartir Ubicación" />
-
-    <!-- Mapa que muestra al usuario y amigos -->
-    <FrameLayout
-        android:id="@+id/map_container"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_below="@id/btn_share_location"
-        android:layout_above="@id/btn_open_camera"
-        android:layout_margin="16dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <!-- Botón para abrir la cámara y compartir una foto -->
-    <Button
-        android:id="@+id/btn_open_camera"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"
-        android:text="Abrir Cámara" />
+        <!-- Mapa que muestra al usuario y amigos -->
+        <Button
+            android:id="@+id/btn_share_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Compartir Ubicación" />
 
-</RelativeLayout>
+        <com.mapbox.mapboxsdk.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="16dp"
+            android:layout_weight="1" />
+
+        <!-- Botón para abrir la cámara y compartir una foto -->
+        <Button
+            android:id="@+id/btn_open_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Abrir Cámara" />
+
+    </LinearLayout>
+    <!-- Botón para compartir ubicación -->
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

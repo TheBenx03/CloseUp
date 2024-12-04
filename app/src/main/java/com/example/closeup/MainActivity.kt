@@ -39,8 +39,14 @@ class MainActivity : AppCompatActivity() {
 
         // Acción para ir a la actividad de registro
         registerButton.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
+            val email = emailInput.text.toString()
+            val password = passwordInput.text.toString()
+
+            if (email.isNotEmpty() && password.isNotEmpty()) {
+                registerUser(email, password)
+            } else {
+                Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -54,6 +60,19 @@ class MainActivity : AppCompatActivity() {
                     startActivity(i)
                 } else {
                     Toast.makeText(this, "Error de autenticación: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun registerUser(email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Registro exitoso
+                    Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Fallo en el registro
+                    Toast.makeText(this, "Error de registro: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }

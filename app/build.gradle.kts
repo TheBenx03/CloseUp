@@ -27,6 +27,10 @@ android {
             )
         }
     }
+
+    buildFeatures{
+        buildConfig = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -40,7 +44,6 @@ dependencies {
 
     implementation (libs.androidx.constraintlayout.v214)
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
@@ -50,4 +53,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Map Dependencies
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("androidx.core:core-ktx:1.10.1")
+    implementation ("androidx.appcompat:appcompat:1.6.1")
+    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation ("org.maplibre.gl:android-sdk:10.0.2")
 }
