@@ -1,14 +1,17 @@
 package com.example.closeup
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.geojson.Point
+import com.google.firebase.auth.FirebaseAuth
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
@@ -17,6 +20,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 class MenuActivity : AppCompatActivity() {
 
     private lateinit var btnAbrirCamara: Button
+    private lateinit var btnLogout: Button // Botón para cerrar sesión
     private lateinit var imgCapturada: ImageView
     private lateinit var takePictureLauncher: ActivityResultLauncher<Intent>
     private lateinit var mapView: MapView
@@ -24,59 +28,114 @@ class MenuActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Verifica si el usuario está autenticado
+        val auth = FirebaseAuth.getInstance()
+        if (auth.currentUser == null) {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
+
+        // Configuración de MapTiler
         val key = BuildConfig.MAPTILER_API_KEY
         val mapId = "streets-v2"
-
         val styleUrl = "https://api.maptiler.com/maps/$mapId/style.json?key=$key"
         Mapbox.getInstance(this)
 
-//        //FIXME: Inicia la actividad con ciertos requisitos, buscar requisitos y documentacion del mapa, probar con un target
         setContentView(R.layout.activity_menu)
 
-        //Puntero al boton
-        //btnAbrirCamara = findViewById(R.id.btn_open_camera)
-
-        //Puntero al contenedor
+        // Inicializa vistas
         mapView = findViewById(R.id.mapView)
-
-        // FIXME: Crashea al no poder guardar la imagen
-        //TODO: Almacenar imagen con su ubicacion en firebase storage
-
+        btnAbrirCamara = findViewById(R.id.btn_open_camera)
+        btnLogout = findViewById(R.id.btnLogout) // Inicializa el botón de logout
         // imgCapturada = findViewById(R.id.imgCapturada)
+
         mapView.onCreate(savedInstanceState)
+
+        // Configuración del mapa
         mapView.getMapAsync { map ->
-            map.setStyle(styleUrl){
-                map.uiSettings.setAttributionMargins(15, 0, 0, 15)
-                map.cameraPosition = CameraPosition.Builder()
-                    .target(LatLng(-33.4489,-70.6693))
-                    .zoom(10.0)
-                    .build()
+            map.setStyle(styleUrl) { style ->
+                // Obtén las coordenadas del Intent
+                val hasLatitude = intent.hasExtra("latitude")
+                val hasLongitude = intent.hasExtra("longitude")
+
+                if (hasLatitude && hasLongitude) {
+                    val latitude = intent.getDoubleExtra("latitude", 0.0)
+                    val longitude = intent.getDoubleExtra("longitude", 0.0)
+
+                    val targetLocation = LatLng(latitude, longitude)
+
+                    map.cameraPosition = CameraPosition.Builder()
+                        .target(targetLocation)
+                        .zoom(14.0)
+                        .build()
+
+                    addMarkerToMap(map, targetLocation)
+                } else {
+                    Toast.makeText(
+                        this,
+                        "No se proporcionaron coordenadas válidas.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
 
-//        mapView.getMapboxMap().loadStyleUri(
-//            Style.MAPTILER_STREETS
-//        ) {
-//            getCurrentLocation { latitude, longitude ->
-//                val point = Point.fromLngLat(longitude, latitude)
-//                mapView.getMapboxMap().setCamera(
-//                    CameraOptions.Builder().center(point).zoom(14.0).build()
-//                )
-//                addMarker(point)
-//            }
-//        }
+        // Configura el botón para abrir la cámara
+        takePictureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val imageBitmap = result.data?.extras?.get("data") as Bitmap
+                imgCapturada.setImageBitmap(imageBitmap)
+                Toast.makeText(this, "Imagen capturada", Toast.LENGTH_SHORT).show()
+            }
+        }
 
+        btnAbrirCamara.setOnClickListener {
+            abrirCamara()
+        }
 
-//        takePictureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
-//            if(result.resultCode == RESULT_OK){
-//                val imageBitmap = result.data?.extras?.get("data")as Bitmap
-//                imgCapturada.setImageBitmap(imageBitmap)
-//            }
-//        }
+        // Configura el botón para cerrar sesión
+        btnLogout.setOnClickListener {
+            confirmLogout()
+        }
+    }
 
-//        btnAbrirCamara.setOnClickListener {
-//            abrirCamara()
-//        }
+    private fun abrirCamara() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (intent.resolveActivity(packageManager) != null) {
+            takePictureLauncher.launch(intent)
+        }
+    }
+
+    private fun addMarkerToMap(map: com.mapbox.mapboxsdk.maps.MapboxMap, location: LatLng) {
+        map.addMarker(
+            com.mapbox.mapboxsdk.annotations.MarkerOptions()
+                .position(location)
+                .title("Ubicación actual")
+        )
+    }
+
+    private fun confirmLogout() {
+        // Mostrar un cuadro de diálogo de confirmación para cerrar sesión
+        AlertDialog.Builder(this)
+            .setTitle("Cerrar sesión")
+            .setMessage("¿Estás seguro de que deseas cerrar sesión?")
+            .setPositiveButton("Sí") { _, _ ->
+                logoutUser()
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
+    private fun logoutUser() {
+        // Cierra sesión en Firebase
+        FirebaseAuth.getInstance().signOut()
+
+        // Redirige al MainActivity
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     override fun onStart() {
@@ -99,11 +158,6 @@ class MenuActivity : AppCompatActivity() {
         mapView.onStop()
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         mapView.onDestroy()
@@ -112,12 +166,5 @@ class MenuActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         mapView.onSaveInstanceState(outState)
-    }
-
-    private fun abrirCamara(){
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if(intent.resolveActivity(packageManager) != null){
-            takePictureLauncher.launch(intent)
-        }
     }
 }
