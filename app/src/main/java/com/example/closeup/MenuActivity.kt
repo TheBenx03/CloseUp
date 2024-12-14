@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -34,6 +33,7 @@ class MenuActivity : AppCompatActivity() {
     //Mapa y ubicacion
     private lateinit var takePictureLauncher: ActivityResultLauncher<Intent>
     private lateinit var mapView: MapView
+    private lateinit var mapBoxMap: MapboxMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,42 +60,12 @@ class MenuActivity : AppCompatActivity() {
         btnLogout = findViewById(R.id.btnLogout) // Inicializa el botón de logout
         // imgCapturada = findViewById(R.id.imgCapturada)
 
-        mapView.onCreate(savedInstanceState)
         // Configuración del mapa
-
         mapView.getMapAsync { map ->
             map.setStyle(styleUrl)
             //Simple var para que la primera carga del mapa se salte la fun
-            var innit = false
-
-            // Obtén las coordenadas del Intent
-            val hasLatitude = intent.hasExtra("latitude")
-            val hasLongitude = intent.hasExtra("longitude")
-
-            if (hasLatitude && hasLongitude) {
-                val latitude = intent.getDoubleExtra("latitude", 0.0)
-                val longitude = intent.getDoubleExtra("longitude", 0.0)
-
-                val targetLocation = LatLng(latitude, longitude)
-
-                map.cameraPosition = CameraPosition.Builder()
-                    .target(targetLocation)
-                    .zoom(14.0)
-                    .build()
-
-                addMarkerToMap(map, targetLocation)
-            }
-            else if (!innit){
-                innit = true
-            }
-            else {
-                Toast.makeText(
-                    this,
-                    "No se proporcionaron coordenadas válidas.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
+            mapBoxMap = map
+            startingLocation(mapBoxMap)
         }
 
         // Configura el botón para abrir la cámara
@@ -121,6 +91,33 @@ class MenuActivity : AppCompatActivity() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (intent.resolveActivity(packageManager) != null) {
             takePictureLauncher.launch(intent)
+        }
+    }
+
+    private fun startingLocation(map: MapboxMap){
+        // Obtén las coordenadas del Intent
+        val hasLatitude = intent.hasExtra("latitude")
+        val hasLongitude = intent.hasExtra("longitude")
+
+        if (hasLatitude && hasLongitude) {
+            val latitude = intent.getDoubleExtra("latitude", 0.0)
+            val longitude = intent.getDoubleExtra("longitude", 0.0)
+
+            val targetLocation = LatLng(latitude, longitude)
+
+            map.cameraPosition = CameraPosition.Builder()
+                .target(targetLocation)
+                .zoom(14.0)
+                .build()
+
+            addMarkerToMap(map, targetLocation)
+        }
+        else {
+            Toast.makeText(
+                this,
+                "No se proporcionaron coordenadas válidas.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
