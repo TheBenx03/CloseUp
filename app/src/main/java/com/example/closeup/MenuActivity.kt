@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.closeup
 
 import android.content.Intent
@@ -16,12 +18,18 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.maps.MapboxMap
 
 class MenuActivity : AppCompatActivity() {
 
+    // Botón para cerrar sesión
+    private lateinit var btnLogout: Button
+
+    // Camara y Imagenes
     private lateinit var btnAbrirCamara: Button
-    private lateinit var btnLogout: Button // Botón para cerrar sesión
     private lateinit var imgCapturada: ImageView
+
+    //Mapa y ubicacion
     private lateinit var takePictureLauncher: ActivityResultLauncher<Intent>
     private lateinit var mapView: MapView
 
@@ -36,7 +44,6 @@ class MenuActivity : AppCompatActivity() {
             finish()
             return
         }
-
         // Configuración de MapTiler
         val key = BuildConfig.MAPTILER_API_KEY
         val mapId = "streets-v2"
@@ -108,7 +115,7 @@ class MenuActivity : AppCompatActivity() {
         }
     }
 
-    private fun addMarkerToMap(map: com.mapbox.mapboxsdk.maps.MapboxMap, location: LatLng) {
+    private fun addMarkerToMap(map: MapboxMap, location: LatLng) {
         map.addMarker(
             com.mapbox.mapboxsdk.annotations.MarkerOptions()
                 .position(location)
