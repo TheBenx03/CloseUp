@@ -163,8 +163,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun redirectToMenu() {
-        val intent = Intent(this, MenuActivity::class.java)
-        startActivity(intent)
-        finish()
+        getLastKnownLocation()
     }
 }

@@ -58,7 +58,7 @@ class MenuActivity : AppCompatActivity() {
         mapView = findViewById(R.id.mapView)
         btnAbrirCamara = findViewById(R.id.btn_open_camera)
         btnLogout = findViewById(R.id.btnLogout) // Inicializa el botón de logout
-        // imgCapturada = findViewById(R.id.imgCapturada)
+        imgCapturada = findViewById(R.id.imgCapturada)
 
         // Configuración del mapa
         mapView.getMapAsync { map ->
