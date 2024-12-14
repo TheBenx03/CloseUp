@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
@@ -59,34 +61,41 @@ class MenuActivity : AppCompatActivity() {
         // imgCapturada = findViewById(R.id.imgCapturada)
 
         mapView.onCreate(savedInstanceState)
-
         // Configuración del mapa
+
         mapView.getMapAsync { map ->
-            map.setStyle(styleUrl) { style ->
-                // Obtén las coordenadas del Intent
-                val hasLatitude = intent.hasExtra("latitude")
-                val hasLongitude = intent.hasExtra("longitude")
+            map.setStyle(styleUrl)
+            //Simple var para que la primera carga del mapa se salte la fun
+            var innit = false
 
-                if (hasLatitude && hasLongitude) {
-                    val latitude = intent.getDoubleExtra("latitude", 0.0)
-                    val longitude = intent.getDoubleExtra("longitude", 0.0)
+            // Obtén las coordenadas del Intent
+            val hasLatitude = intent.hasExtra("latitude")
+            val hasLongitude = intent.hasExtra("longitude")
 
-                    val targetLocation = LatLng(latitude, longitude)
+            if (hasLatitude && hasLongitude) {
+                val latitude = intent.getDoubleExtra("latitude", 0.0)
+                val longitude = intent.getDoubleExtra("longitude", 0.0)
 
-                    map.cameraPosition = CameraPosition.Builder()
-                        .target(targetLocation)
-                        .zoom(14.0)
-                        .build()
+                val targetLocation = LatLng(latitude, longitude)
 
-                    addMarkerToMap(map, targetLocation)
-                } else {
-                    Toast.makeText(
-                        this,
-                        "No se proporcionaron coordenadas válidas.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                map.cameraPosition = CameraPosition.Builder()
+                    .target(targetLocation)
+                    .zoom(14.0)
+                    .build()
+
+                addMarkerToMap(map, targetLocation)
             }
+            else if (!innit){
+                innit = true
+            }
+            else {
+                Toast.makeText(
+                    this,
+                    "No se proporcionaron coordenadas válidas.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
         }
 
         // Configura el botón para abrir la cámara
@@ -117,7 +126,7 @@ class MenuActivity : AppCompatActivity() {
 
     private fun addMarkerToMap(map: MapboxMap, location: LatLng) {
         map.addMarker(
-            com.mapbox.mapboxsdk.annotations.MarkerOptions()
+            MarkerOptions()
                 .position(location)
                 .title("Ubicación actual")
         )
@@ -143,35 +152,5 @@ class MenuActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        mapView.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mapView.onStop()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView.onDestroy()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState)
     }
 }
