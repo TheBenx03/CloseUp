@@ -3,6 +3,7 @@ package com.example.closeup
 import android.content.Intent
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -13,9 +14,14 @@ import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var db: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -23,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        db = Firebase.firestore
         auth = FirebaseAuth.getInstance()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -121,6 +128,7 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(this, MenuActivity::class.java)
                     intent.putExtra("latitude", location.latitude)
                     intent.putExtra("longitude", location.longitude)
+                    updateCurrentUserCoordinates(location)
                     startActivity(intent)
                     finish()
                 } else {
@@ -162,7 +170,69 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    //Busca al usuario en la base de datos y guarda su documento como string
+    private fun getCurrentUserDocument(){
+        db.collection("usuarios")
+            .document(auth.currentUser!!.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                val doc = document.data.toString()
+                val intent = Intent(this, MenuActivity::class.java)
+                intent.putExtra("currentUserDocument", doc)
+                Log.w("UserDocument",doc)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(baseContext, "Usuario no esta en base de datos$e ", Toast.LENGTH_SHORT).show()
+
+            }
+    }
+
+    //Busca al usuario en las coordenadas y guarda su documento como string
+    private fun getCurrentUserCoordinates(){
+        db.collection("coordenadas")
+            .document(auth.currentUser!!.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                val doc = document.data.toString()
+                val intent = Intent(this, MenuActivity::class.java)
+                intent.putExtra("currentUserCoords", doc)
+                Log.w("UserDocument",doc)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(baseContext, "Usuario no esta en base de datos$e ", Toast.LENGTH_SHORT).show()
+                //TODO: Crear usuario al registrarse
+                //A la hora de crear un registro, tomar esa uid y crear un documento con el usuario
+                val coordenadas = hashMapOf(
+                    "id" to "nick?",
+                    "nombre" to "nombre",
+                    "email" to "email@email.cl",
+                    "amigos" to arrayOf(String)
+                )
+                db.collection("coordenadas")
+                    .document(auth.currentUser!!.uid)
+                    .set(coordenadas, SetOptions.merge())
+            }
+
+    }
+
+    //Actualiza las coordenadas del usuario a las actuales
+    private fun updateCurrentUserCoordinates(location: Location){
+        val coordenadas = hashMapOf(
+            "latitud" to location.latitude,
+            "longitud" to location.longitude,
+            "timestamp" to System.currentTimeMillis()
+        )
+        db.collection("coordenadas")
+            .document(auth.currentUser!!.uid)
+            .set(coordenadas, SetOptions.merge())
+    }
+
     private fun redirectToMenu() {
+        getCurrentUserDocument()
         getLastKnownLocation()
     }
+
+    //TODO: Compartir ubicacion actual a tus amigos
+    //TODO: Enviar ubicacion a amigo, añade marcador y mueve camara(?)
+        //Simplemente dibujar en el mapa todas las ultimas ubicaciones de tus amigos
 }

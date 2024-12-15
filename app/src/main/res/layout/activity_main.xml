@@ -67,11 +67,6 @@
             android:textColor="#FFFFFF"
             android:padding="12dp" />
 
-
-
-        
-
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
