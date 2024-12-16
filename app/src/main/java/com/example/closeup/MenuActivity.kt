@@ -40,6 +40,7 @@ class MenuActivity : AppCompatActivity() {
     private lateinit var takePictureLauncher: ActivityResultLauncher<Intent>
     private lateinit var mapView: MapView
     private lateinit var mapBoxMap: MapboxMap
+    private lateinit var btnshareLocation: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +68,7 @@ class MenuActivity : AppCompatActivity() {
         btnAbrirCamara = findViewById(R.id.btn_open_camera)
         btnLogout = findViewById(R.id.btnLogout) // Inicializa el botón de logout
         imgCapturada = findViewById(R.id.imgCapturada)
-        val compartirUbicacion = findViewById<Button>(R.id.btn_share_location)
+        btnshareLocation = findViewById<Button>(R.id.btn_share_location)
 
         // Configuración del mapa
         mapView.getMapAsync { map ->
@@ -95,7 +96,7 @@ class MenuActivity : AppCompatActivity() {
             confirmLogout()
         }
 
-        compartirUbicacion.setOnClickListener {
+        btnshareLocation.setOnClickListener {
             //TODO: Lista de amigos, mover camara a amigos
         }
         //listAmigos.setOnClickListener{}
