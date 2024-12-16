@@ -28,6 +28,7 @@ class MenuActivity : AppCompatActivity() {
     // Firebase
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseFirestore
+    private lateinit var friendList: Map<String, Any>
 
     // Botón para cerrar sesión
     private lateinit var btnLogout: Button
@@ -75,8 +76,8 @@ class MenuActivity : AppCompatActivity() {
             map.setStyle(styleUrl)
             //Simple var para que la primera carga del mapa se salte la fun
             mapBoxMap = map
-            markStartingLocation()
-            markAllFriends(database)
+            startMarkAllFriends(database)
+            startMarkLocation()
         }
         // Configura el botón para abrir la cámara
         takePictureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -103,14 +104,59 @@ class MenuActivity : AppCompatActivity() {
         //Funcion que tome amigos y los dibuje en pantalla
     }
 
-    private fun markAllFriends(db: FirebaseFirestore) {
+    private fun startMarkAllFriends(db: FirebaseFirestore) {
         db.collection("amigos")
             .document(auth.currentUser!!.uid)
             .get()
             .addOnCompleteListener { doc ->
                 val friends = doc.result.data
+                friendList = doc.result.data as Map<String, Any>
                 for (friend in friends!!.keys){
                     db.collection("coordenadas")
+                        .document(friend)
+                        .get()
+                        .addOnSuccessListener { document ->
+                            val lat = document["latitud"]
+                            val lon = document["longitud"]
+                            val location = LatLng(lat as Double, lon as Double)
+                            Log.w("location", location.toString())
+                            addMarkerToMap(location, friends[friend].toString())
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(baseContext,
+                                "Documento no encontrado$e ", Toast.LENGTH_SHORT).show()
+                        }
+
+                    db.collection("coordenadas")
+                        .document(friend)
+                        .addSnapshotListener { snapshot, e ->
+                            if (e != null) {
+                                Log.e("Firestore", "Error al escuchar ubicaciones", e)
+                                return@addSnapshotListener
+                            }
+                            if (snapshot != null && snapshot.exists()) {
+                                val latitude = snapshot.getDouble("latitude")
+                                val longitude = snapshot.getDouble("longitude")
+                                Log.d("Firestore", "Ubicación recibida: Lat: $latitude, Lng: $longitude")
+                                // Actualiza el mapa con esta ubicación.
+                                mapBoxMap.clear()
+                                markAllFriends(database)
+                                markLocation()
+                            }
+                        }
+                }
+            }
+    }
+
+    private fun markAllFriends(database: FirebaseFirestore) {
+        database.collection("amigos")
+            .document(auth.currentUser!!.uid)
+            .get()
+            .addOnCompleteListener { doc ->
+                val friends = doc.result.data
+                friendList = doc.result.data as Map<String, Any>
+                for (friend in friends!!.keys){
+                    database.collection("coordenadas")
                         .document(friend)
                         .get()
                         .addOnSuccessListener { document ->
@@ -135,7 +181,7 @@ class MenuActivity : AppCompatActivity() {
         }
     }
 
-    private fun markStartingLocation(){
+    private fun startMarkLocation(){
         // Obtén las coordenadas del Intent
         val hasLatitude = intent.hasExtra("latitude")
         val hasLongitude = intent.hasExtra("longitude")
@@ -150,6 +196,28 @@ class MenuActivity : AppCompatActivity() {
                 .target(targetLocation)
                 .zoom(14.0)
                 .build()
+
+            addMarkerToMap(targetLocation, "Ubicacion Actual")
+        }
+        else {
+            Toast.makeText(
+                this,
+                "No se proporcionaron coordenadas válidas.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun markLocation(){
+        // Obtén las coordenadas del Intent
+        val hasLatitude = intent.hasExtra("latitude")
+        val hasLongitude = intent.hasExtra("longitude")
+
+        if (hasLatitude && hasLongitude) {
+            val latitude = intent.getDoubleExtra("latitude", 0.0)
+            val longitude = intent.getDoubleExtra("longitude", 0.0)
+
+            val targetLocation = LatLng(latitude, longitude)
 
             addMarkerToMap(targetLocation, "Ubicacion Actual")
         }
