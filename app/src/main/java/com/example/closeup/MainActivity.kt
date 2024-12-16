@@ -16,8 +16,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        db = Firebase.firestore
+        db = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -153,27 +151,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun registerUser() {
-        //TODO: Mover a actividad distinta
         val intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
     }
 
-    //Busca al usuario en la base de datos y guarda su documento como string
-    private fun getCurrentUserDocument(){
-        db.collection("usuarios")
-            .document(auth.currentUser!!.uid)
-            .get()
-            .addOnSuccessListener { document ->
-                val doc = document.data.toString()
-                val intent = Intent(this, MenuActivity::class.java)
-                intent.putExtra("currentUserDocument", doc)
-                Log.w("UserDocument",doc)
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(baseContext, "Usuario no esta en base de datos$e ", Toast.LENGTH_SHORT).show()
-            }
-    }
-
+    //TODO: MOVER A MENU
     //Busca al usuario en las coordenadas y guarda su documento como string
     private fun getCurrentUserCoordinates(){
         db.collection("coordenadas")
@@ -183,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                 val doc = document.data.toString()
                 val intent = Intent(this, MenuActivity::class.java)
                 intent.putExtra("currentUserCoords", doc)
-                Log.w("UserDocument",doc)
+                Log.w("MainActivity:getCurrentUserCoordinates",doc)
             }
             .addOnFailureListener { e ->
                 Toast.makeText(baseContext, "Usuario no esta en base de datos$e ", Toast.LENGTH_SHORT).show()
@@ -191,6 +173,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //TODO: Copiar a menu?
     //Actualiza las coordenadas del usuario a las actuales
     private fun updateCurrentUserCoordinates(location: Location){
         val coordenadas = hashMapOf(
@@ -204,11 +187,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun redirectToMenu() {
-        getCurrentUserDocument()
         getLastKnownLocation()
     }
-
-    //TODO: Compartir ubicacion actual a tus amigos
-    //TODO: Enviar ubicacion a amigo, añade marcador y mueve camara(?)
-        //Simplemente dibujar en el mapa todas las ultimas ubicaciones de tus amigos
 }

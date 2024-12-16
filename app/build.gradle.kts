@@ -44,7 +44,7 @@ android {
 dependencies {
 
     implementation (libs.androidx.constraintlayout.v214)
-    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)

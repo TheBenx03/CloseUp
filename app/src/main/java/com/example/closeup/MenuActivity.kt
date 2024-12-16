@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -14,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
@@ -22,6 +24,10 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 
 class MenuActivity : AppCompatActivity() {
+
+    // Firebase
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: FirebaseFirestore
 
     // Botón para cerrar sesión
     private lateinit var btnLogout: Button
@@ -39,7 +45,9 @@ class MenuActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Verifica si el usuario está autenticado
-        val auth = FirebaseAuth.getInstance()
+        database = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
+
         if (auth.currentUser == null) {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
@@ -59,15 +67,16 @@ class MenuActivity : AppCompatActivity() {
         btnAbrirCamara = findViewById(R.id.btn_open_camera)
         btnLogout = findViewById(R.id.btnLogout) // Inicializa el botón de logout
         imgCapturada = findViewById(R.id.imgCapturada)
+        val compartirUbicacion = findViewById<Button>(R.id.btn_share_location)
 
         // Configuración del mapa
         mapView.getMapAsync { map ->
             map.setStyle(styleUrl)
             //Simple var para que la primera carga del mapa se salte la fun
             mapBoxMap = map
-            startingLocation(mapBoxMap)
+            markStartingLocation()
+            markAllFriends(database)
         }
-
         // Configura el botón para abrir la cámara
         takePictureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -85,6 +94,37 @@ class MenuActivity : AppCompatActivity() {
         btnLogout.setOnClickListener {
             confirmLogout()
         }
+
+        compartirUbicacion.setOnClickListener {
+            //TODO: Lista de amigos, mover camara a amigos
+        }
+        //listAmigos.setOnClickListener{}
+        //Funcion que tome amigos y los dibuje en pantalla
+    }
+
+    private fun markAllFriends(db: FirebaseFirestore) {
+        db.collection("amigos")
+            .document(auth.currentUser!!.uid)
+            .get()
+            .addOnCompleteListener { doc ->
+                val friends = doc.result.data
+                for (friend in friends!!.keys){
+                    db.collection("coordenadas")
+                        .document(friend)
+                        .get()
+                        .addOnSuccessListener { document ->
+                            val lat = document["latitud"]
+                            val lon = document["longitud"]
+                            val location = LatLng(lat as Double, lon as Double)
+                            Log.w("location", location.toString())
+                            addMarkerToMap(location, friends[friend].toString())
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(baseContext,
+                                "Documento no encontrado$e ", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            }
     }
 
     private fun abrirCamara() {
@@ -94,7 +134,7 @@ class MenuActivity : AppCompatActivity() {
         }
     }
 
-    private fun startingLocation(map: MapboxMap){
+    private fun markStartingLocation(){
         // Obtén las coordenadas del Intent
         val hasLatitude = intent.hasExtra("latitude")
         val hasLongitude = intent.hasExtra("longitude")
@@ -105,12 +145,12 @@ class MenuActivity : AppCompatActivity() {
 
             val targetLocation = LatLng(latitude, longitude)
 
-            map.cameraPosition = CameraPosition.Builder()
+            mapBoxMap.cameraPosition = CameraPosition.Builder()
                 .target(targetLocation)
                 .zoom(14.0)
                 .build()
 
-            addMarkerToMap(map, targetLocation)
+            addMarkerToMap(targetLocation, "Ubicacion Actual")
         }
         else {
             Toast.makeText(
@@ -121,11 +161,27 @@ class MenuActivity : AppCompatActivity() {
         }
     }
 
-    private fun addMarkerToMap(map: MapboxMap, location: LatLng) {
-        map.addMarker(
+    //TODO: MOVER A MENU
+    //Busca al usuario en la base de datos y guarda su documento como string
+    private fun getCurrentUserDocument(db: FirebaseFirestore){
+        db.collection("usuarios")
+            .document(auth.currentUser!!.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                val doc = document.data.toString()
+                intent.putExtra("currentUserDocument", doc)
+                Log.w("MainActivity:getCurrentUserDocument",doc)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(baseContext, "Usuario no esta en base de datos$e ", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun addMarkerToMap(location: LatLng, tag: String) {
+        mapBoxMap.addMarker(
             MarkerOptions()
                 .position(location)
-                .title("Ubicación actual")
+                .title(tag)
         )
     }
 
@@ -143,7 +199,7 @@ class MenuActivity : AppCompatActivity() {
 
     private fun logoutUser() {
         // Cierra sesión en Firebase
-        FirebaseAuth.getInstance().signOut()
+        auth.signOut()
 
         // Redirige al MainActivity
         val intent = Intent(this, MainActivity::class.java)
