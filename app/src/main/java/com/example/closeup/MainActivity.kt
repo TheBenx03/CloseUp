@@ -58,13 +58,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         registerButton.setOnClickListener {
-            val email = emailInput.text.toString()
-            val password = passwordInput.text.toString()
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                registerUser(email, password)
-            } else {
-                Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
-            }
+            registerUser()
         }
     }
 
@@ -158,16 +152,10 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    private fun registerUser(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    loginUser(email, password) // Inicia sesión automáticamente
-                } else {
-                    Log.e("MainActivity", "Error de registro: ${task.exception?.message}")
-                    Toast.makeText(this, "Error de registro: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
+    private fun registerUser() {
+        //TODO: Mover a actividad distinta
+        val intent = Intent(this, RegisterActivity::class.java)
+        startActivity(intent)
     }
 
     //Busca al usuario en la base de datos y guarda su documento como string
@@ -183,7 +171,6 @@ class MainActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 Toast.makeText(baseContext, "Usuario no esta en base de datos$e ", Toast.LENGTH_SHORT).show()
-
             }
     }
 
@@ -200,17 +187,6 @@ class MainActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 Toast.makeText(baseContext, "Usuario no esta en base de datos$e ", Toast.LENGTH_SHORT).show()
-                //TODO: Crear usuario al registrarse
-                //A la hora de crear un registro, tomar esa uid y crear un documento con el usuario
-                val coordenadas = hashMapOf(
-                    "id" to "nick?",
-                    "nombre" to "nombre",
-                    "email" to "email@email.cl",
-                    "amigos" to arrayOf(String)
-                )
-                db.collection("coordenadas")
-                    .document(auth.currentUser!!.uid)
-                    .set(coordenadas, SetOptions.merge())
             }
 
     }
