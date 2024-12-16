@@ -9,21 +9,26 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="#F5F5F5">
 
         <Button
             android:id="@+id/btn_share_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:text="Compartir Ubicación" />
+            android:text="Compartir Ubicación"
+            android:backgroundTint="#3F51B5"
+            android:textColor="#FFFFFF"
+            android:padding="12dp" />
 
         <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_margin="16dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:background="@color/white"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -38,14 +43,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
-                    android:text="Abrir Cámara" />
+                    android:text="Abrir Cámara"
+                    android:backgroundTint="#3F51B5"
+                    android:textColor="#FFFFFF"
+                    android:padding="14dp"/>
                 <Button
                     android:id="@+id/btnLogout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cerrar sesión"
                     android:layout_margin="16dp"
-                    android:layout_gravity="center_horizontal" />
+                    android:layout_gravity="center_horizontal"
+                    android:backgroundTint="#3F51B5"
+                    android:textColor="#FFFFFF"
+                    android:padding="14dp"/>
             </LinearLayout>
             <ImageView
                 android:id="@+id/imgCapturada"
@@ -54,7 +65,8 @@
                 android:layout_margin="16dp"
                 android:outlineSpotShadowColor="@color/black"
                 android:contentDescription="Image from abrir camara"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:background="@color/black"/>
 
         </LinearLayout>
 
