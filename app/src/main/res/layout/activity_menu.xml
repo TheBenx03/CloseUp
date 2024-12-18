@@ -57,6 +57,16 @@
                     android:backgroundTint="#3F51B5"
                     android:textColor="#FFFFFF"
                     android:padding="14dp"/>
+                <Button
+                    android:id="@+id/btnAddFriendMenu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Agregar Amigo"
+                    android:layout_margin="16dp"
+                    android:backgroundTint="#3F51B5"
+                    android:textColor="#FFFFFF"
+                    android:padding="12dp"/>
+
             </LinearLayout>
             <ImageView
                 android:id="@+id/imgCapturada"
@@ -67,6 +77,8 @@
                 android:contentDescription="Image from abrir camara"
                 android:layout_gravity="center"
                 android:background="@color/black"/>
+
+
 
         </LinearLayout>
 

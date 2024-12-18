@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.closeup">
 
+    <!-- Permisos necesarios -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -23,24 +24,40 @@
         android:theme="@style/Theme.CloseUp"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-        <!-- Actividad principal -->
+
+        <!-- Actividad principal (Menú) -->
         <activity
             android:name=".MenuActivity"
             android:exported="true" />
+
+        <!-- Nueva actividad para agregar amigos -->
+        <activity
+            android:name=".AddFriendActivity"
+            android:exported="false"
+            android:label="Agregar Amigo" />
+
+        <!-- Nueva actividad para mostrar lista de usuarios -->
+        <activity
+            android:name=".UserListActivity"
+            android:exported="false"
+            android:label="Lista de Usuarios" />
+
+        <!-- Registro de usuarios -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <!-- Actividad de inicio -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
-
                 <!-- Punto de entrada principal -->
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
